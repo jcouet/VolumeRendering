@@ -9,12 +9,10 @@
 #                                                                                                  #
 ####################################################################################################
 
+
 import FabricEngine.SceneGraph
-from FabricEngine.SceneGraph.RT.Math import *
-from FabricEngine.SceneGraph.Nodes.Geometry.PolygonMeshImpl import PolygonMesh
 from FabricEngine.SceneGraph.Nodes.Images.BaseImageImpl import BaseImage
-from nodes.MeImageLibraryImpl import MeImageLibrary
-  
+   
 
 class VolumeTextureLibrary(BaseImage):
   """A class to display meshes"""   
