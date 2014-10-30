@@ -4,14 +4,9 @@ VolumeRendering, v0.1
 
 I. DESCRIPTION
 
-* VolumeRendering is an OpenGL volume rendering pipeline for FabricEngine_1.12.
+VolumeRendering is an OpenGL volume rendering pipeline for FabricEngine_1.12.
 It can be use to render volumetric data (voxels) such as medical imaging acquisition.
-For now the demo is presented as a Python application but that can change in the future.
-
-* The code has been inspired from:
-  - werwer
-  - werwer
- 
+For the moment the demo is presented as a Python application only but that can change in the future.
 
 
 II. CONTRIBUTION
