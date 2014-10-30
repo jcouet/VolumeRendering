@@ -42,6 +42,17 @@ class BaseImage(SceneGraphNode):
       defaultImage = scene.getFabricClient().RT.types.Image2DColor.create()
     elif self.__format == 'Scalar':
       defaultImage = scene.getFabricClient().RT.types.Image2DScalar.create()
+      
+    ####################################################################################################
+    #                                                                                                  #
+    #  Informations :                                                                                  #
+    #      This code is part of the project VolumeRendering                                            #
+    #                                                                                                  #
+    #  Contacts :                                                                                      #
+    #      couet.julien@gmail.com                                                                      #
+    #      benyoub.anis@gmail.com                                                                      #
+    #                                                                                                  #
+    ####################################################################################################
     elif self.__format == 'Volume':
       defaultImage = scene.getFabricClient().RT.types.Image2DVolume.create()
 
