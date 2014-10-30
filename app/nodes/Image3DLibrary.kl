@@ -83,7 +83,7 @@ operator createTextureTest(
                                           /***********************/
 
 /**************************************************************************************************/
-/*                                                2. Pixels                                       */
+/*                                          2. Texture from Image                                 */
 inline Boolean LoadColorImageData(
   String filePath,
   String ext,
@@ -200,7 +200,7 @@ operator createTextureFromImage(
     }
 
     texture.resize(width, heigth, depth);
-    
+
     depth = 0;
     for(Index i=0; i<file_paths.size(); ++i)
     {
@@ -222,6 +222,6 @@ operator createTextureFromImage(
     dirty = false;
   }    
 }
-/*                                       end Constructor/Destructor                               */
+/*                                          end Texture from Image                                */
 /**************************************************************************************************/
  

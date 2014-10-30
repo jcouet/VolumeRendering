@@ -14,18 +14,18 @@ import FabricEngine.SceneGraph
 from FabricEngine.SceneGraph.Nodes.Images.BaseImageImpl import BaseImage
    
 
-class VolumeTextureLibrary(BaseImage):
-  """A class to display meshes"""   
+class Image3DLibrary(BaseImage):
+  """A class to manage 3D images"""   
    
   def __init__(self, scene, format = 'Volume', **kwargs):
-    super(VolumeTextureLibrary, self).__init__(scene, format=format, **kwargs)
+    super(Image3DLibrary, self).__init__(scene, format=format, **kwargs)
 
     self.getDGNode().addMember("dirty", 'Boolean', True)
     self.getDGNode().addMember("path", 'String', '')
 
     self.bindDGOperator(self.getDGNode().bindings,
       name='createTextureFromImage', 
-      fileName=FabricEngine.SceneGraph.buildAbsolutePath('VolumeTextureLibrary.kl'), 
+      fileName=FabricEngine.SceneGraph.buildAbsolutePath('Image3DLibrary.kl'), 
       layout=[
         'self.path',
         'self.dirty',
@@ -34,7 +34,7 @@ class VolumeTextureLibrary(BaseImage):
 
     # self.bindDGOperator(self.getDGNode().bindings,
     #   name='createTextureTest', 
-    #   fileName=FabricEngine.SceneGraph.buildAbsolutePath('VolumeTextureLibrary.kl'), 
+    #   fileName=FabricEngine.SceneGraph.buildAbsolutePath('Image3DLibrary.kl'), 
     #   layout=[
     #     'self.dirty',
     #     'self.image'],
@@ -48,5 +48,5 @@ class VolumeTextureLibrary(BaseImage):
     self.getDGNode().setData('dirty', True)
 
 
-VolumeTextureLibrary.registerNodeClass('VolumeTextureLibrary')
+Image3DLibrary.registerNodeClass('Image3DLibrary')
  

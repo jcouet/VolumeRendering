@@ -21,7 +21,7 @@
   </attributes>
 
   <textures>
-    <texture name="volumeTexture" paramName="u_volumeTexture"/>
+    <texture name="texture3D" paramName="u_texture3D"/>
   </textures>
  
   <vertexshader>
@@ -32,7 +32,7 @@
       uniform mat4 u_invViewMatrix;
       uniform mat4 u_projection;
       uniform mat4 u_modelMatrix;
-      uniform sampler3D u_volumeTexture;
+      uniform sampler3D u_texture3D;
 
       in vec4 in_position;
       out vec4 v_vertexCoord;
@@ -56,7 +56,7 @@
       uniform mat4 u_invViewMatrix;
       uniform mat4 u_projection;
       uniform mat4 u_modelMatrix;
-      uniform sampler3D u_volumeTexture;
+      uniform sampler3D u_texture3D;
 
       in vec4 v_vertexCoord;
       out vec4 out_fragColor;
@@ -81,7 +81,7 @@
               (pos_.y >= minBB) && (pos_.y <= maxBB) && 
               (pos_.z >= minBB) && (pos_.z <= maxBB) )
           {
-            vec4 color = texture(u_volumeTexture, pos_).rgba;
+            vec4 color = texture(u_texture3D, pos_).rgba;
             float alpha = color.a * stepSize;
 
             colorAcc += (1.0 - alphaAcc) * color * alpha; 

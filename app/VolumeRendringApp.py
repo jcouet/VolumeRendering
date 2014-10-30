@@ -19,7 +19,7 @@ from FabricEngine.SceneGraph.Nodes.Manipulation import *
 from FabricEngine.SceneGraph.Nodes.Importers.OBJImporterImpl import *
 from FabricEngine.SceneGraph.PySide.SceneGraphApplicationImpl import SceneGraphApplication
  
-from nodes.VolumeTextureLibraryImpl import VolumeTextureLibrary
+from nodes.Image3DLibraryImpl import Image3DLibrary
 
 
 class VolumeRenderingApp(SceneGraphApplication):
@@ -60,8 +60,8 @@ class VolumeRenderingApp(SceneGraphApplication):
   def constructSceneGraph(self):
     path=FabricEngine.SceneGraph.buildAbsolutePath('../data/0001.jpg')
 
-    self.volumeTextureLibrary=VolumeTextureLibrary(self.scene)
-    self.volumeTextureLibrary.setImage(path)
+    self.image3DLibrary=Image3DLibrary(self.scene)
+    self.image3DLibrary.setImage(path)
 
     self.texture2DLibrary=Image2DLibrary(self.scene)
     self.texture2DLibrary.addImage(name='texture2D', filePath=path)
@@ -71,7 +71,7 @@ class VolumeRenderingApp(SceneGraphApplication):
     volumeRenderingMaterial=Material(
       self.scene, 
       xmlFile='VolumeRenderingMaterial',
-      volumeTexture=self.volumeTextureLibrary)
+      texture3D=self.image3DLibrary)
 
     GeometryInstance(
       self.scene, 
