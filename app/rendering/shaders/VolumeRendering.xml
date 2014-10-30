@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+   Informations :                                                                                 
+      This code is part of the project VolumeRendering                                           
+                                                                                                  
+   Contacts :                                                                                     
+      couet.julien@gmail.com                                                                     
+      benyoub.anis@gmail.com
+-->
+
+<shader name="VolumeRenderingShader">
+
+  <uniforms>
+    <uniform name="projection" paramName="u_projection" type="Mat44" expose="False"/>
+    <uniform name="transform" paramName="u_modelMatrix" type="Mat44" space="world" expose="False"/>
+    <uniform name="invViewTransform" paramName="u_invViewMatrix" type="Mat44" expose="False"/>
+  </uniforms>
+  
+  <attributes>
+    <attribute name="positions" paramName="in_position" type="Vec3"/>
+  </attributes>
+
+  <textures>
+    <texture name="volumeTexture" paramName="u_volumeTexture"/>
+  </textures>
+ 
+  <vertexshader>
+    <source>
+      <![CDATA[
+      #version 150 //required for OSX support
+    
+      uniform mat4 u_invViewMatrix;
+      uniform mat4 u_projection;
+      uniform mat4 u_modelMatrix;
+      uniform sampler3D u_volumeTexture;
+
+      in vec4 in_position;
+      out vec4 v_vertexCoord;
+
+      void main()
+      {
+        v_vertexCoord = in_position;
+        mat4 modelView = u_invViewMatrix * u_modelMatrix;
+        gl_Position = u_projection * (modelView * in_position);
+      }
+      ]]>
+    </source>
+  </vertexshader>
+ 
+
+  <fragmentshader>
+    <source>
+      <![CDATA[
+      #version 150 //required for OSX support
+
+      uniform mat4 u_invViewMatrix;
+      uniform mat4 u_projection;
+      uniform mat4 u_modelMatrix;
+      uniform sampler3D u_volumeTexture;
+
+      in vec4 v_vertexCoord;
+      out vec4 out_fragColor;
+
+      const float nbSamples = 64;
+      const float minBB = 0.0;
+      const float maxBB = 1.0;
+
+      const float stepSize = 0.5*(sqrt(3.0)*2.0)/nbSamples;
+
+      void simpleRayTracing(
+        in vec3 pos, 
+        in vec3 eyeDir,
+        out vec4 colorAcc) 
+      {
+        float alphaAcc = 0.0;
+        vec3 pos_ = pos;
+
+        for(int i = 0; i < nbSamples; ++i)
+        {
+          if( (pos_.x >= minBB) && (pos_.x <= maxBB) && 
+              (pos_.y >= minBB) && (pos_.y <= maxBB) && 
+              (pos_.z >= minBB) && (pos_.z <= maxBB) )
+          {
+            vec4 color = texture(u_volumeTexture, pos_).rgba;
+            float alpha = color.a * stepSize;
+
+            colorAcc += (1.0 - alphaAcc) * color * alpha; 
+            alphaAcc += alpha;
+
+            if(alphaAcc > 1.0) 
+            { 
+              colorAcc.a = 1.0; 
+              break; 
+            }
+          }
+          pos_ += eyeDir;
+        }
+      }
+
+      void main() 
+      {
+        mat4 modelViewInv = inverse(u_invViewMatrix * u_modelMatrix); 
+        vec3 worldPos = v_vertexCoord.xyz*0.5 + vec3(0.5);
+        vec3 eyePos = modelViewInv[3].xyz*0.5 + vec3(0.5);
+        vec3 eyeDir = normalize(worldPos-eyePos)*stepSize;
+                
+        worldPos+=eyeDir; 
+        out_fragColor = vec4(0,0,0,0);
+        simpleRayTracing(worldPos, eyeDir, out_fragColor);
+      }
+
+      ]]>
+    </source>
+  </fragmentshader>
+</shader>
+
+  

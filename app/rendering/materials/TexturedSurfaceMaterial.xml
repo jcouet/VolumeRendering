@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<material name="TexturedSurface" flags="lit">
+  <categories>
+    <category name="standard">
+      <shader xmlFile="flatTextured"/>
+    </category>
+    <category name="shaded">
+      <shader xmlFile="phongTextured"/>
+    </category>
+  </categories>
+</material>

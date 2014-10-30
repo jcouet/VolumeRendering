@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Informations :                                                                                 
+      This code is part of the project VolumeRendering                                           
+                                                                                                  
+  Contacts :                                                                                     
+      couet.julien@gmail.com                                                                     
+      benyoub.anis@gmail.com
+-->
+
+<material name="VolumeRendering" flags="lit">
+  <categories>
+    <category name="standard">
+      <shader xmlFile="VolumeRendering"/>
+    </category>
+  </categories>
+</material>

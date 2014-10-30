@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shader name="flatTextured">
+
+  <uniforms>
+    <uniform name="transform" paramName="u_modelViewProjectionMatrix" type="Mat44" space="viewProjection" expose="False"/>
+  </uniforms>
+  
+  <attributes>
+    <attribute name="positions" paramName="in_position" type="Vec3"/>
+    <attribute name="uvs0" paramName="in_uvs" type="Vec2"/>
+  </attributes>
+
+  <textures>
+    <texture name="diffuseTexture" paramName="u_diffuseTexture"/>
+  </textures>
+
+  <vertexshader>
+    <source>
+      <![CDATA[
+      #version 150
+      uniform mat4 u_modelViewProjectionMatrix;
+      in vec4 in_position;
+      in vec2 in_uvs;
+
+      out vec2 v_texCoord;
+
+      void main(){
+        gl_Position = u_modelViewProjectionMatrix * in_position;
+        v_texCoord = vec2(in_uvs.x, 1.0-in_uvs.y);//Flip image in Y
+      }
+      ]]>
+    </source>
+  </vertexshader>
+  
+  <fragmentshader>
+    <source>
+      <![CDATA[
+      #version 150
+      uniform sampler2D u_diffuseTexture;
+      in vec2 v_texCoord;
+      
+      out vec4 out_fragColor;
+
+      void main(){
+        out_fragColor = texture( u_diffuseTexture, v_texCoord );
+      }
+
+      ]]>
+    </source>
+  </fragmentshader>
+</shader>

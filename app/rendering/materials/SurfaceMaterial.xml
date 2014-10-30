@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<material name="Surface">
+  <categories>
+    <category name="flat">
+      <shader xmlFile="flat"/>
+    </category>
+    <category name="shaded">
+      <shader xmlFile="phong"/>
+    </category>
+  </categories>
+</material>

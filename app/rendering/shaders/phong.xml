@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shader name="phong">
+
+  <uniforms>
+    <uniform name="diffuseColor" paramName="u_color" type="Color" defaultValue="Color(1.0,0.0,0.0)"/>
+    <uniform name="shininess" paramName="u_shininess" type="Scalar" defaultValue="20.0"/>
+
+    <uniform name="transform" paramName="u_modelMatrix" type="Mat44" expose="False"/>
+    <uniform name="transform" paramName="u_modelViewProjectionMatrix" type="Mat44" space="viewProjection" expose="False"/>
+    <uniform name="transform" paramName="u_normalMatrix" type="Mat33" usageHint="normalTransform" expose="False"/>
+
+    <uniform name="viewTransform" paramName="u_viewMatrix" type="Mat44" expose="False"/>
+
+    <uniform name="lightTransform" paramName="u_lightMatrix" type="Mat44" expose="False"/>
+    <uniform name="lightColor" paramName="u_lightColor" type="Color" defaultValue="Color(1.0,1.0,1.0)" expose="False"/>
+    <uniform name="ambientColor" paramName="u_ambientColor" type="Color" defaultValue="Color(0.1,0.1,0.1,1.0)" expose="False"/>
+  </uniforms>
+
+  <attributes>
+    <attribute name="positions" paramName="in_position" type="Vec3"/>
+    <attribute name="normals" paramName="in_normal" type="Vec3"/>
+  </attributes>
+
+  <vertexshader>
+    <source>
+      <![CDATA[
+      #version 150
+      uniform mat4 u_modelMatrix;
+      uniform mat4 u_modelViewProjectionMatrix;
+      uniform mat3 u_normalMatrix;
+      uniform mat4 u_lightMatrix;
+      uniform mat4 u_viewMatrix;
+      
+      in vec4 in_position;
+      in vec3 in_normal;
+      
+      out vec3 v_worldSurfacePosition;
+      out vec3 v_worldNormal;
+      out vec3 v_worldEyePosition;
+      flat out vec3 v_worldLightDir;
+
+      void main(){
+        gl_Position = u_modelViewProjectionMatrix * in_position;
+
+        v_worldSurfacePosition = (u_modelMatrix * in_position).xyz;
+        v_worldNormal = u_normalMatrix * in_normal;
+        v_worldEyePosition = u_viewMatrix[3].xyz;//translation component
+
+        //Since OpenGL has column matrices, the -Z axis of the light (direction) is -[2].xyz
+        v_worldLightDir = normalize( -u_lightMatrix[2].xyz );
+      }
+      ]]>
+    </source>
+  </vertexshader>
+  
+  <fragmentshader>
+    <source>
+      <![CDATA[
+      #version 150
+      in vec3 v_worldSurfacePosition;
+      in vec3 v_worldNormal;
+      in vec3 v_worldEyePosition;
+      flat in vec3 v_worldLightDir;
+
+      uniform vec4 u_color;
+      uniform float u_shininess;
+      
+      uniform vec4 u_lightColor;
+      uniform vec4 u_ambientColor;
+      
+      out vec4 out_fragColor;
+
+      void main(){
+        vec3 Ln = -v_worldLightDir;//from surface to light
+        vec3 Vn = normalize(v_worldEyePosition-v_worldSurfacePosition);//from surface to eye
+        vec3 Nn = normalize(v_worldNormal);
+
+        out_fragColor = u_ambientColor * u_color;
+
+        // Compute Phong BRDF
+        float lambertTerm = dot(Nn,Ln);
+        if ( lambertTerm > 0.0 ) {
+          out_fragColor += u_color * u_lightColor * lambertTerm;
+          vec3 Rn = reflect(-Ln, Nn);
+          float specular = pow( max(dot(Rn, Vn), 0.0), u_shininess );
+          out_fragColor += specular * u_lightColor;
+        }
+      }
+      ]]>
+    </source>
+  </fragmentshader>
+</shader>

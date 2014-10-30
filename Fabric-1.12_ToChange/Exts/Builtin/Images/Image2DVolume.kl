@@ -1,0 +1,182 @@
+/**************************************************************************************************/
+/*                                                                                                */
+/*  Informations :                                                                                */
+/*      This code is part of the project VolumeRendering                                          */
+/*                                                                                                */
+/*  Contacts :                                                                                    */
+/*      couet.julien@gmail.com                                                                    */
+/*      benyoub.anis@gmail.com                                                                    */
+/*                                                                                                */
+/**************************************************************************************************/
+
+require Math, FabricStatistics;
+
+object Image2DVolume : StatisticSourceWithAutoRegisterMember {
+  Size width;
+  Size height;
+  Size depth;
+  Color pixels[];
+  UInt32 version;
+  UInt32 flags;
+  String name;
+  StatisticsAutoRegisterMember autoStats;
+};
+
+function Image2DVolume() {
+  if(FabricStatisticsEnabled())
+    this.autoStats = StatisticsAutoRegisterMember(this);
+}
+
+//Make sure to call this method after position changes are finished, so caches (such as drawing data) know that they need to be regenerated.
+inline Image2DVolume.incrementVersion!()
+{
+  this.version++;
+}
+
+function Image2DVolume.resize!(
+  in UInt32 width,
+  in UInt32 height,
+  in UInt32 depth,
+){
+  this.pixels.resize(width * height * depth);
+  this.width = width;
+  this.height = height;
+  this.depth = depth;
+  this.incrementVersion();
+}
+
+// Given pixel integer coordinates in 2D, return the index of the pixel, handling clamping etc..
+function UInt32 Image2DVolume.getPixelIndex(
+  in Integer uindex,
+  in Integer vindex,
+  in Integer windex
+){
+  UInt32 uindexLocal, vindexLocal, windexLocal;
+  if(uindex < 0) 
+    if(true) // CLAMP
+      uindexLocal = 0;
+    else     // LOOP
+      uindexLocal += this.width;
+
+  else if(uindex >= this.width)
+    if(true) // CLAMP
+      uindexLocal = this.width - 1;
+    else     // LOOP
+      uindexLocal = uindex % this.width;
+
+  else
+    uindexLocal = uindex;
+
+
+  if(vindex < 0)
+    if(true) // CLAMP
+      vindexLocal = 0;
+    else     // LOOP
+      vindexLocal += this.height;
+
+  else if(vindex >= this.height)
+    if(true) // CLAMP
+      vindexLocal = this.height - 1;
+    else     // LOOP
+      vindexLocal = vindex % this.height;
+  else
+    vindexLocal = vindex;
+
+
+  if(windex < 0)
+    if(true) // CLAMP
+      windexLocal = 0;
+    else     // LOOP
+      windexLocal += this.depth;
+    
+  else if(windex >= this.depth)
+    if(true) // CLAMP
+      windexLocal = this.depth - 1;
+    else     // LOOP
+      windexLocal = windex % this.depth;
+  else
+    windexLocal = windex;
+
+
+  return (windexLocal * this.width * this.height) + (vindexLocal * this.width) + uindexLocal;
+}
+
+function Color Image2DVolume.sample(
+  in Scalar u,
+  in Scalar v,
+  in Scalar w
+){
+  Scalar u1, u2, v1, v2, w1, w2;
+  u1 = floor((u * Scalar(this.width)) - 0.5);
+  u2 = floor((u * Scalar(this.width)) + 0.5);
+  v1 = floor((v * Scalar(this.height)) - 0.5);
+  v2 = floor((v * Scalar(this.height)) + 0.5);
+  w1 = floor((w * Scalar(this.depth)) - 0.5);
+  w2 = floor((w * Scalar(this.depth)) + 0.5);
+
+  // CLAMP, LOOP
+  UInt32 tl_1 = this.getPixelIndex(u1, v1, w1);
+  UInt32 bl_1 = this.getPixelIndex(u2, v1, w1);
+  UInt32 tr_1 = this.getPixelIndex(u1, v2, w1);
+  UInt32 br_1 = this.getPixelIndex(u2, v2, w1);
+
+  UInt32 tl_2 = this.getPixelIndex(u1, v1, w2);
+  UInt32 bl_2 = this.getPixelIndex(u2, v1, w2);
+  UInt32 tr_2 = this.getPixelIndex(u1, v2, w2);
+  UInt32 br_2 = this.getPixelIndex(u2, v2, w2);
+
+  Scalar uinterp = (u * Scalar(this.width)) - u1;
+  Scalar vinterp = (v * Scalar(this.height)) - v1;
+  Scalar winterp = (w * Scalar(this.depth)) - w1;
+
+  Color tlClr_1 = this.pixels[tl_1];
+  Color blClr_1 = this.pixels[bl_1];
+  Color trClr_1 = this.pixels[tr_1];
+  Color brClr_1 = this.pixels[br_1];
+  Color uClr_1 = tlClr_1.linearInterpolate(blClr_1, uinterp);
+  Color vClr_1 = trClr_1.linearInterpolate(brClr_1, uinterp);
+  Color temp_1 = uClr_1.linearInterpolate(vClr_1, vinterp);
+
+  Color tlClr_2 = this.pixels[tl_2];
+  Color blClr_2 = this.pixels[bl_2];
+  Color trClr_2 = this.pixels[tr_2];
+  Color brClr_2 = this.pixels[br_2];
+  Color uClr_2 = tlClr_2.linearInterpolate(blClr_2, uinterp);
+  Color vClr_2 = trClr_2.linearInterpolate(brClr_2, uinterp);
+  Color temp_2 = uClr_2.linearInterpolate(vClr_2, vinterp);
+
+  return temp_1.linearInterpolate(temp_2, winterp);
+}
+
+inline Image2DVolume.setPixel!(  
+  in Integer uindex,
+  in Integer vindex,
+  in Integer windex,
+  in Color pixelValue
+){
+  this.pixels[(windex * this.width * this.height) + (vindex * this.width) + uindex] = pixelValue;
+}
+
+inline Image2DVolume.setPixel!(  
+  in Integer index,
+  in Color pixelValue
+){
+  this.pixels[index] = pixelValue;
+}
+
+inline Color Image2DVolume.getPixel(in Integer index) {
+  return this.pixels[index];
+}
+
+//Implementation of StatisticSource interface's 'getStatistics()'.
+function StatisticRecord[] Image2DVolume.getStatistics() {
+  StatisticRecord stats[];
+  stats.push( StatisticRecord( Statistic_Name, this.name ) );
+  stats.push( StatisticRecord( Statistic_Category, "Image" ) );
+  stats.push( StatisticRecord( "Size", this.pixels.size() ) );
+  stats.push( StatisticRecord( "PixWidth", this.width ) );
+  stats.push( StatisticRecord( "PixHeight", this.height ) );
+  stats.push( StatisticRecord( "PixDepth", this.depth ) );
+  stats.push( StatisticRecord( Statistic_MemoryUsage, 12*4+this.pixels.size()*4*4 ) );
+  return stats;
+}

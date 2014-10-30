@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shader name="flat">
+
+  <uniforms>
+    <uniform name="diffuseColor" paramName="u_color" type="Color" defaultValue="Color(1.0,0.0,0.0)"/>
+    <uniform name="transform" paramName="u_modelViewProjectionMatrix" type="Mat44" space="viewProjection" expose="False"/>
+  </uniforms>
+  
+  <attributes>
+    <attribute name="positions" paramName="in_position" type="Vec3"/>
+  </attributes>
+
+  <vertexshader>
+    <source>
+      <![CDATA[
+      #version 150
+      uniform mat4 u_modelViewProjectionMatrix;
+      in vec4 in_position;
+
+      void main(){
+        gl_Position = u_modelViewProjectionMatrix * in_position;
+      }
+      ]]>
+    </source>
+  </vertexshader>
+  
+  <fragmentshader>
+    <source>
+      <![CDATA[
+      #version 150
+      
+      uniform vec4 u_color;
+      out vec4 out_fragColor;
+
+      void main(){
+        out_fragColor = u_color;
+      }
+
+      ]]>
+    </source>
+  </fragmentshader>
+</shader>
